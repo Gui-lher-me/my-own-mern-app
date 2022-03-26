@@ -1,4 +1,4 @@
-import {} from 'react';
+import { FC } from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
 import { CreateExercise } from './components/CreateExercise';
 import { CreateUser } from './components/CreateUser';
@@ -6,7 +6,7 @@ import { EditExercise } from './components/EditExercise';
 import { ExercisesList } from './components/ExercisesList';
 import { Navbar } from './components/Navbar';
 
-const App = () => {
+const App: FC = () => {
   return (
     <Router>
       <Navbar />

@@ -1,5 +1,6 @@
-import { useState, useEffect, ChangeEvent, FormEvent } from 'react';
+import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -8,12 +9,28 @@ const initialState = {
   description: '',
   duration: 0,
   date: new Date(),
-  users: [''],
 };
 
-export const CreateExercise = () => {
+export const CreateExercise: FC = () => {
   const [exercise, setExercise] = useState(initialState);
+  const [users, setUsers] = useState(['']);
+
   const navigate = useNavigate();
+
+  useEffect(() => {
+    axios
+      .get('http://localhost:5000/users/')
+      .then((res) => {
+        if (res.data.length > 0) {
+          setUsers(res.data.map((user: any) => user.username));
+          setExercise((previousState) => ({
+            ...previousState,
+            username: res.data[0].username,
+          }));
+        }
+      })
+      .catch((error) => console.log(error));
+  }, []);
 
   const onChange = (
     event: ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -29,17 +46,17 @@ export const CreateExercise = () => {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { username, description, duration, date } = exercise;
-    console.log({ username, description, duration, date });
-    navigate('/');
+    axios
+      .post('http://localhost:5000/exercises/', {
+        username,
+        description,
+        duration,
+        date,
+      })
+      .then((res) => console.log(res.data))
+      .catch((error) => console.log(error))
+      .finally(() => navigate('/'));
   };
-
-  useEffect(() => {
-    setExercise((initialState) => ({
-      ...initialState,
-      users: ['test user'],
-      username: 'test user',
-    }));
-  }, []);
 
   return (
     <form onSubmit={onSubmit}>
@@ -51,7 +68,7 @@ export const CreateExercise = () => {
           value={exercise.username}
           onChange={onChange}
         >
-          {exercise.users.map((user) => (
+          {users.map((user: string) => (
             <option key={user} value={user}>
               {user}
             </option>
@@ -81,7 +98,7 @@ export const CreateExercise = () => {
         />
       </div>
 
-      <div>
+      <div style={{ display: 'flex', gap: '4px' }}>
         <label>Date: </label>
         <DatePicker
           selected={exercise.date}
