@@ -1,8 +1,9 @@
 import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
 import { useNavigate } from 'react-router-dom';
-import axios from 'axios';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { toast } from 'react-toastify';
+import { readAll, createOne } from '../services/api';
 
 const initialState = {
   username: '',
@@ -18,18 +19,20 @@ export const CreateExercise: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    axios
-      .get('http://localhost:5000/users/')
-      .then((res) => {
-        if (res.data.length > 0) {
-          setUsers(res.data.map((user: any) => user.username));
+    readAll(
+      '/users/',
+      (users: any) => {
+        if (users.length > 0) {
+          setUsers(users.map((user: any) => user.username));
           setExercise((previousState) => ({
             ...previousState,
-            username: res.data[0].username,
+            username: users[0].username,
           }));
         }
-      })
-      .catch((error) => console.log(error));
+      },
+      (errorMessage: any) => console.log(errorMessage),
+      () => {}
+    );
   }, []);
 
   const onChange = (
@@ -46,16 +49,18 @@ export const CreateExercise: FC = () => {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { username, description, duration, date } = exercise;
-    axios
-      .post('http://localhost:5000/exercises/', {
+    createOne(
+      '/exercises/',
+      {
         username,
         description,
         duration,
         date,
-      })
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error))
-      .finally(() => navigate('/'));
+      },
+      (successMessage: any) => toast.success(successMessage),
+      (errorMessage: any) => toast.error(errorMessage),
+      () => navigate('/')
+    );
   };
 
   return (

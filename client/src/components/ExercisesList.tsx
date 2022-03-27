@@ -1,29 +1,33 @@
 import { FC, useState, useEffect } from 'react';
-import axios from 'axios';
 import { Exercise } from './Exercise';
-
-const url = 'http://localhost:5000/exercises/';
+import { toast } from 'react-toastify';
+import { readAll, deleteOne } from '../services/api';
 
 export const ExercisesList: FC = () => {
   const [exercises, setExercises] = useState([]);
 
   useEffect(() => {
-    axios
-      .get(url)
-      .then((res) => {
-        setExercises(res.data);
-      })
-      .catch((error) => console.log(error));
+    readAll(
+      '/exercises/',
+      (exercises: any) => {
+        if (exercises.length > 0) {
+          setExercises(exercises);
+        }
+      },
+      (errorMessage: any) => console.log(errorMessage),
+      () => {}
+    );
   }, []);
 
   const deleteExercise = (id: string) => {
-    axios
-      .delete(url + id)
-      .then((res) => {
-        console.log(res.data);
-        setExercises(exercises.filter((exercise: any) => exercise._id !== id));
-      })
-      .catch((error) => console.log(error));
+    deleteOne(
+      '/exercises/',
+      id,
+      (successMessage: any) => toast.success(successMessage),
+      (errorMessage: any) => toast.error(errorMessage),
+      () =>
+        setExercises(exercises.filter((exercise: any) => exercise._id !== id))
+    );
   };
 
   return (

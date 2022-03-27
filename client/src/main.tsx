@@ -1,11 +1,13 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import './index.css'
-import App from './App'
+import { StrictMode } from 'react';
+import { render } from 'react-dom';
+import './index.css';
+import { App } from './App';
 
-ReactDOM.render(
-  <React.StrictMode>
+const el = document.querySelector('#root');
+
+render(
+  <StrictMode>
     <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-)
+  </StrictMode>,
+  el
+);

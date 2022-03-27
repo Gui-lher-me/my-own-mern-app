@@ -1,5 +1,6 @@
 import { useState, ChangeEvent, FormEvent, FC } from 'react';
-import axios from 'axios';
+import { toast } from 'react-toastify';
+import { createOne } from '../services/api';
 
 export const CreateUser: FC = () => {
   const [username, setUsername] = useState('');
@@ -11,11 +12,13 @@ export const CreateUser: FC = () => {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    axios
-      .post('http://localhost:5000/users/', { username })
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error))
-      .finally(() => setUsername(''));
+    createOne(
+      '/users/',
+      { username },
+      (successMessage: any) => toast.success(successMessage),
+      (errorMessage: any) => toast.error(errorMessage),
+      () => setUsername('')
+    );
   };
 
   return (

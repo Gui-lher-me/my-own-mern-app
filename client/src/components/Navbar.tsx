@@ -9,10 +9,10 @@ export const Navbar = () => {
           <Link to='/'>Exercises</Link>
         </li>
         <li>
-          <Link to='/create'>Create Exercise Log</Link>
+          <Link to='/create-exercise'>Create Exercise Log</Link>
         </li>
         <li>
-          <Link to='/user'>Create User</Link>
+          <Link to='/create-user'>Create User</Link>
         </li>
       </ul>
     </nav>

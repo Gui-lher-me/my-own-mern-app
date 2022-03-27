@@ -1,8 +1,9 @@
 import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import axios from 'axios';
+import { toast } from 'react-toastify';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
+import { readAll, updateOne } from '../services/api';
 
 const initialState = {
   username: '',
@@ -19,21 +20,21 @@ export const EditExercise: FC = () => {
   const navigate = useNavigate();
 
   useEffect(() => {
-    setExercise({
-      username: state.username,
-      description: state.description,
-      duration: state.duration,
-      date: new Date(state.date),
-    });
-
-    axios
-      .get('http://localhost:5000/users/')
-      .then((res) => {
-        if (res.data.length > 0) {
-          setUsers(res.data.map((user: any) => user.username));
-        }
-      })
-      .catch((error) => console.log(error));
+    readAll(
+      '/users/',
+      (users: any) => {
+        setUsers(users.map((user: any) => user.username));
+      },
+      (errorMessage: any) => console.log(errorMessage),
+      () => {
+        setExercise({
+          username: state.username,
+          description: state.description,
+          duration: state.duration,
+          date: new Date(state.date),
+        });
+      }
+    );
   }, []);
 
   const onChange = (
@@ -50,16 +51,19 @@ export const EditExercise: FC = () => {
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     const { username, description, duration, date } = exercise;
-    axios
-      .put('http://localhost:5000/exercises/' + state._id, {
+    updateOne(
+      '/exercises/',
+      state._id,
+      {
         username,
         description,
         duration,
         date,
-      })
-      .then((res) => console.log(res.data))
-      .catch((error) => console.log(error))
-      .finally(() => navigate('/'));
+      },
+      (successMessage: any) => toast.success(successMessage),
+      (errorMessage: any) => toast.error(errorMessage),
+      () => navigate('/')
+    );
   };
 
   return (
