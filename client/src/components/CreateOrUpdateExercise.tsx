@@ -1,9 +1,8 @@
 import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { toast } from 'react-toastify';
-import { readAll, createOne, updateOne } from '../services/api';
+import { readAll } from '../services/api';
 
 const initialState = {
   username: '',
@@ -13,23 +12,31 @@ const initialState = {
 };
 
 export const CreateOrUpdateExercise: FC<any> = ({
-  setLatestAddedOrUpdatedExercise,
+  updateExercise,
+  createExercise,
 }) => {
   const [exercise, setExercise] = useState(initialState);
   const [users, setUsers] = useState(['']);
 
   const { state }: any = useLocation();
-  const navigate = useNavigate();
 
   useEffect(() => {
-    if (state) {
-      readAll(
-        '/users/',
-        (users: any) => {
+    readAll(
+      '/users/',
+      (users: any) => {
+        if (users.length > 0) {
           setUsers(users.map((user: any) => user.username));
-        },
-        (errorMessage: any) => console.log(errorMessage),
-        () => {
+          if (!state) {
+            setExercise((previousState) => ({
+              ...previousState,
+              username: users[0].username,
+            }));
+          }
+        }
+      },
+      (errorMessage: any) => console.log(errorMessage),
+      () => {
+        if (state) {
           setExercise({
             username: state.username,
             description: state.description,
@@ -37,22 +44,7 @@ export const CreateOrUpdateExercise: FC<any> = ({
             date: new Date(state.date),
           });
         }
-      );
-      return;
-    }
-    readAll(
-      '/users/',
-      (users: any) => {
-        if (users.length > 0) {
-          setUsers(users.map((user: any) => user.username));
-          setExercise((previousState) => ({
-            ...previousState,
-            username: users[0].username,
-          }));
-        }
-      },
-      (errorMessage: any) => console.log(errorMessage),
-      () => {}
+      }
     );
   }, []);
 
@@ -70,29 +62,10 @@ export const CreateOrUpdateExercise: FC<any> = ({
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (state) {
-      updateOne(
-        '/exercises/',
-        state._id,
-        exercise,
-        (successMessage: any) => toast.success(successMessage),
-        (errorMessage: any) => toast.error(errorMessage),
-        () => {
-          setLatestAddedOrUpdatedExercise(exercise);
-          navigate('/');
-        }
-      );
+      updateExercise(exercise, state._id);
       return;
     }
-    createOne(
-      '/exercises/',
-      exercise,
-      (successMessage: any) => toast.success(successMessage),
-      (errorMessage: any) => toast.error(errorMessage),
-      () => {
-        setLatestAddedOrUpdatedExercise(exercise);
-        navigate('/');
-      }
-    );
+    createExercise(exercise);
   };
 
   return (
