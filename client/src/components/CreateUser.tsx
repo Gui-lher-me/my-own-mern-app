@@ -1,8 +1,6 @@
 import { useState, ChangeEvent, FormEvent, FC } from 'react';
-import { toast } from 'react-toastify';
-import { createOne } from '../services/api';
 
-export const CreateUser: FC = () => {
+export const CreateUser: FC<any> = ({ createUser }) => {
   const [username, setUsername] = useState('');
 
   const onChange = (event: ChangeEvent<HTMLInputElement>) => {
@@ -12,13 +10,7 @@ export const CreateUser: FC = () => {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    createOne(
-      '/users/',
-      { username },
-      (successMessage: any) => toast.success(successMessage),
-      (errorMessage: any) => toast.error(errorMessage),
-      () => setUsername('')
-    );
+    createUser(username, setUsername);
   };
 
   return (

@@ -12,7 +12,7 @@ const initialState = {
   date: new Date(),
 };
 
-export const EditExercise: FC = () => {
+export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
   const [exercise, setExercise] = useState<any>(initialState);
   const [users, setUsers] = useState(['']);
 
@@ -50,19 +50,16 @@ export const EditExercise: FC = () => {
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { username, description, duration, date } = exercise;
     updateOne(
       '/exercises/',
       state._id,
-      {
-        username,
-        description,
-        duration,
-        date,
-      },
+      exercise,
       (successMessage: any) => toast.success(successMessage),
       (errorMessage: any) => toast.error(errorMessage),
-      () => navigate('/')
+      () => {
+        setLatestAddedOrUpdatedExercise(exercise);
+        navigate('/');
+      }
     );
   };
 
