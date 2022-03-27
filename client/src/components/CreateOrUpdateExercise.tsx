@@ -1,9 +1,9 @@
 import { useState, useEffect, ChangeEvent, FormEvent, FC } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { toast } from 'react-toastify';
+import { useNavigate, useLocation } from 'react-router-dom';
 import DatePicker from 'react-datepicker';
 import 'react-datepicker/dist/react-datepicker.css';
-import { readAll, updateOne } from '../services/api';
+import { toast } from 'react-toastify';
+import { readAll, createOne, updateOne } from '../services/api';
 
 const initialState = {
   username: '',
@@ -12,28 +12,47 @@ const initialState = {
   date: new Date(),
 };
 
-export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
-  const [exercise, setExercise] = useState<any>(initialState);
+export const CreateOrUpdateExercise: FC<any> = ({
+  setLatestAddedOrUpdatedExercise,
+}) => {
+  const [exercise, setExercise] = useState(initialState);
   const [users, setUsers] = useState(['']);
 
   const { state }: any = useLocation();
   const navigate = useNavigate();
 
   useEffect(() => {
+    if (state) {
+      readAll(
+        '/users/',
+        (users: any) => {
+          setUsers(users.map((user: any) => user.username));
+        },
+        (errorMessage: any) => console.log(errorMessage),
+        () => {
+          setExercise({
+            username: state.username,
+            description: state.description,
+            duration: state.duration,
+            date: new Date(state.date),
+          });
+        }
+      );
+      return;
+    }
     readAll(
       '/users/',
       (users: any) => {
-        setUsers(users.map((user: any) => user.username));
+        if (users.length > 0) {
+          setUsers(users.map((user: any) => user.username));
+          setExercise((previousState) => ({
+            ...previousState,
+            username: users[0].username,
+          }));
+        }
       },
       (errorMessage: any) => console.log(errorMessage),
-      () => {
-        setExercise({
-          username: state.username,
-          description: state.description,
-          duration: state.duration,
-          date: new Date(state.date),
-        });
-      }
+      () => {}
     );
   }, []);
 
@@ -42,17 +61,30 @@ export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
   ) => {
     const { name, value } = event.target;
     if (name === 'duration') {
-      setExercise((props: any) => ({ ...props, [name]: Number(value) }));
+      setExercise((props) => ({ ...props, [name]: Number(value) }));
       return;
     }
-    setExercise((props: any) => ({ ...props, [name]: value }));
+    setExercise((props) => ({ ...props, [name]: value }));
   };
 
   const onSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    updateOne(
+    if (state) {
+      updateOne(
+        '/exercises/',
+        state._id,
+        exercise,
+        (successMessage: any) => toast.success(successMessage),
+        (errorMessage: any) => toast.error(errorMessage),
+        () => {
+          setLatestAddedOrUpdatedExercise(exercise);
+          navigate('/');
+        }
+      );
+      return;
+    }
+    createOne(
       '/exercises/',
-      state._id,
       exercise,
       (successMessage: any) => toast.success(successMessage),
       (errorMessage: any) => toast.error(errorMessage),
@@ -73,7 +105,7 @@ export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
           value={exercise.username}
           onChange={onChange}
         >
-          {users.map((user: any) => (
+          {users.map((user: string) => (
             <option key={user} value={user}>
               {user}
             </option>
@@ -85,6 +117,7 @@ export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
         <label>Description: </label>
         <input
           type='text'
+          required
           name='description'
           value={exercise.description}
           onChange={onChange}
@@ -95,18 +128,19 @@ export const EditExercise: FC<any> = ({ setLatestAddedOrUpdatedExercise }) => {
         <label>Duration (in minutes): </label>
         <input
           type='text'
+          required
           name='duration'
           value={exercise.duration}
           onChange={onChange}
         />
       </div>
 
-      <div>
+      <div style={{ display: 'flex', gap: '4px' }}>
         <label>Date: </label>
         <DatePicker
           selected={exercise.date}
           onChange={(date: Date) =>
-            setExercise((props: any) => ({ ...props, date: date }))
+            setExercise((props) => ({ ...props, date: date }))
           }
         />
       </div>

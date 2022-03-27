@@ -2,9 +2,8 @@ import { FC, useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { CreateExercise } from './components/CreateExercise';
+import { CreateOrUpdateExercise } from './components/CreateOrUpdateExercise';
 import { CreateUser } from './components/CreateUser';
-import { EditExercise } from './components/EditExercise';
 import { ExercisesList } from './components/ExercisesList';
 import { Navbar } from './components/Navbar';
 import { readAll, deleteOne, createOne } from './services/api';
@@ -64,17 +63,17 @@ export const App: FC = () => {
           }
         />
         <Route
-          path='/edit-exercise/:id'
+          path='/create-or-update-exercise'
           element={
-            <EditExercise
+            <CreateOrUpdateExercise
               setLatestAddedOrUpdatedExercise={setLatestAddedOrUpdatedExercise}
             />
           }
         />
         <Route
-          path='/create-exercise'
+          path='/create-or-update-exercise/:id'
           element={
-            <CreateExercise
+            <CreateOrUpdateExercise
               setLatestAddedOrUpdatedExercise={setLatestAddedOrUpdatedExercise}
             />
           }

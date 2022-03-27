@@ -14,7 +14,10 @@ export const Exercise: FC<Props> = ({ exercise, deleteExercise }) => {
       <td>{exercise.duration} min</td>
       <td>{exercise.date.substring(0, 10)}</td>
       <td>
-        <Link to={'/edit-exercise/' + exercise._id} state={exercise}>
+        <Link
+          to={'/create-or-update-exercise/' + exercise._id}
+          state={exercise}
+        >
           edit
         </Link>{' '}
         |{' '}

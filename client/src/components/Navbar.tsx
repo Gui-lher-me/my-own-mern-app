@@ -9,7 +9,7 @@ export const Navbar = () => {
           <Link to='/'>Exercises</Link>
         </li>
         <li>
-          <Link to='/create-exercise'>Create Exercise Log</Link>
+          <Link to='/create-or-update-exercise'>Create Exercise Log</Link>
         </li>
         <li>
           <Link to='/create-user'>Create User</Link>
